@@ -11,6 +11,8 @@ import io.github.tomaso2468.netengine.render.Renderer;
 import io.github.tomaso2468.netengine.render.RendererCreateException;
 
 public abstract class Game {
+	public static final int EXIT_CODE_CRASH = Integer.MIN_VALUE;
+	
 	private Class<?> rendererClass;
 	private Renderer renderer;
 	private int targetWidth = 720;
@@ -34,8 +36,8 @@ public abstract class Game {
 			}
 		} catch (Throwable e) {
 			Log.crash(e);
-			Log.error("Exiting: " + -1);
-			System.exit(-1);
+			Log.error("Exiting: " + EXIT_CODE_CRASH);
+			System.exit(EXIT_CODE_CRASH);
 		}
 	}
 	
@@ -45,19 +47,7 @@ public abstract class Game {
 		System.exit(code);
 	}
 	
-	public void loop() {
-		renderer.startFrame();
-		renderer.clearScreen(Color.white);
-		
-		if (renderer.windowClosePressed()) {
-			exit(0);
-		}
-		
-		renderer.sync();
-		renderer.update();
-	}
-	
-	public void init() {
+	private void init() {
 		Log.info("Registering Plugins");
 		
 		pluginRegister();
@@ -115,25 +105,24 @@ public abstract class Game {
 		}
 	}
 	
-	public void pluginRegister() {
+	protected void pluginRegister() {
 		registerPlugin(NetEngine.class);
 		
 		registerPluginOptional("io.github.tomaso2468.netengine.render.opengl.LWJGL3OpenGL");
 	}
 	
-	public void pluginPreInit() {
+	private void pluginPreInit() {
 		for (Plugin plugin : plugins.values()) {
 			Log.debug("Pre-Initialising " + plugin.getID());
 			plugin.preInit(this);
 		}
+	}
+	
+	protected void preInitGame() {
 		// TODO
 	}
 	
-	public void preInitGame() {
-		// TODO
-	}
-	
-	public void initEngine() {
+	private void initEngine() {
 		Log.info("Initialising Renderer");
 		initRenderer();
 	}
@@ -171,7 +160,7 @@ public abstract class Game {
 		setRendererClass(getRendererClassByID(id));
 	}
 	
-	public void initRenderer() {
+	private void initRenderer() {
 		Log.debug("Renderer Settings: ");
 		Log.debug("Renderer Class: " + rendererClass.getSimpleName());
 		Log.debug("VSync: " + (vsync ? "Enabled" : "Disabled"));
@@ -203,30 +192,79 @@ public abstract class Game {
 		renderer.init();
 	}
 	
-	public void initGame() {
+	protected void initGame() {
 		// TODO
 	}
 	
-	public void pluginInit() {
+	private void pluginInit() {
 		for (Plugin plugin : plugins.values()) {
 			Log.debug("Initialising " + plugin.getID());
 			plugin.init(this);
 		}
+	}
+	
+	protected void postInitGame() {
 		// TODO
 	}
 	
-	public void postInitGame() {
-		// TODO
-	}
-	
-	public void pluginPostInit() {
+	private void pluginPostInit() {
 		for (Plugin plugin : plugins.values()) {
 			Log.debug("Post-Initialising " + plugin.getID());
 			plugin.postInit(this);
 		}
-		// TODO
 	}
 	
+	private void pluginStartFrame() {
+		for (Plugin plugin : plugins.values()) {
+			plugin.startFrame(this, renderer);
+		}
+	}
+	
+	private void pluginEndFrame() {
+		for (Plugin plugin : plugins.values()) {
+			plugin.endFrame(this, renderer);
+		}
+	}
+	
+	private void pluginStartLoop() {
+		for (Plugin plugin : plugins.values()) {
+			plugin.startLoop(this);
+		}
+	}
+	
+	private void pluginEndLoop() {
+		for (Plugin plugin : plugins.values()) {
+			plugin.endLoop(this);
+		}
+	}
+	
+	private void loop() {
+		pluginStartLoop();
+		renderFrame();
+		pluginEndLoop();
+	}
+	
+	private void renderFrame() {
+		renderer.startFrame();
+		renderer.clearScreen(Color.black);
+		
+		pluginStartFrame();
+		
+		if (renderer.windowClosePressed()) {
+			exit(0);
+		}
+		
+		render(renderer);
+		
+		pluginEndFrame();
+		
+		renderer.sync();
+		renderer.update();
+	}
+	
+	protected void render(Renderer renderer) {
+		
+	}
 
 	public Class<?> getRendererClass() {
 		return rendererClass;
@@ -256,19 +294,21 @@ public abstract class Game {
 		this.targetWidth = width;
 		this.targetHeight = height;
 		if (renderer != null) {
-			// TODO Renderer size change
+			renderer.setWindowSize(width, height);
 		}
 	}
 	
 	public boolean isFullscreen() {
-		// TODO Get renderer
+		if (renderer != null) {
+			return renderer.isFullscreen();
+		}
 		return fullscreen;
 	}
 	
 	public void setFullscreen(boolean fullscreen) {
 		this.fullscreen = fullscreen;
 		if (renderer != null) {
-			// TODO Renderer fullscreen change
+			renderer.setFullscreen(fullscreen);
 		}
 	}
 
@@ -279,14 +319,23 @@ public abstract class Game {
 	public void setWindowResizable(boolean windowResizable) {
 		this.windowResizable = windowResizable;
 		if (renderer != null) {
-			// TODO Renderer fullscreen change
+			renderer.setResizable(windowResizable);
 		}
 	}
 	
 	public void setVSync(boolean vsync) {
 		this.vsync = vsync;
 		if (renderer != null) {
-			// TODO Renderer fullscreen change
+			renderer.setVSync(vsync);
+		}
+	}
+	
+	public void setDisplay(int width, int height, boolean fullscreen) {
+		this.targetWidth = width;
+		this.targetHeight = height;
+		this.fullscreen = fullscreen;
+		if (renderer != null) {
+			renderer.setDisplay(width, height, fullscreen);
 		}
 	}
 	

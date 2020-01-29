@@ -1,19 +1,25 @@
 package io.github.tomaso2468.netengine.render;
 
-public class ArrayVertexObject implements VertexObject {
+public class ArrayIndexedVertexObject implements IndexedVertexObject {
 	private float[] vertices;
+	private int[] indices;
 	
-	public ArrayVertexObject(float[] vertices) {
+	public ArrayIndexedVertexObject(float[] vertices, int[] indices) {
 		this.vertices = vertices;
+		this.indices = indices;
 	}
 
 	public float[] getVertices() {
 		return vertices;
 	}
 	
+	public int[] getIndices() {
+		return indices;
+	}
+	
 	@Override
 	public void draw(Renderer renderer) {
-		renderer.drawTriangles(vertices);
+		renderer.drawTriangles(vertices, indices);
 	}
 
 	@Override
@@ -25,4 +31,5 @@ public class ArrayVertexObject implements VertexObject {
 	public void unbind() {
 		
 	}
+
 }

@@ -22,8 +22,9 @@ public interface Renderer extends WindowingSystem {
 	public void clearScreen(Color color);
 	
 	public VertexObject createStaticVO(float[] vertices);
-	
-	public String getShaderFileVersion();
+	public IndexedVertexObject createStaticVO(float[] vertices, int[] indices);
+	public TexturedVertexObject createStaticVOTextured(float[] data, int[] indices);
+	public RenderState createRenderState();
 	
 	public Shader createShader(String[] vertexShaders, String[] fragmentShaders);
 	public default Shader createShader(InputStream[] vertexShaders, InputStream[] fragmentShaders) throws IOException {
@@ -61,6 +62,7 @@ public interface Renderer extends WindowingSystem {
 		
 		return createShader(vertexShaders2, fragmentShaders2);
 	}
+	public void setShader(Shader shader);
 	public default Shader createShader(URL[] vertexShaders, URL[] fragmentShaders) throws IOException {
 		InputStream[] vertexShaders2 = new InputStream[vertexShaders.length];
 		InputStream[] fragmentShaders2 = new InputStream[fragmentShaders.length];
@@ -75,6 +77,9 @@ public interface Renderer extends WindowingSystem {
 		}
 		
 		return createShader(vertexShaders2, fragmentShaders2);
+	}
+	public default Shader createShader(URL vertexShader, URL fragmentShader) throws IOException {
+		return createShader(new URL[] {vertexShader}, new URL[] {fragmentShader});
 	}
 	public default Shader createShader(File[] vertexShaders, File[] fragmentShaders) throws IOException {
 		InputStream[] vertexShaders2 = new InputStream[vertexShaders.length];
@@ -91,4 +96,8 @@ public interface Renderer extends WindowingSystem {
 		
 		return createShader(vertexShaders2, fragmentShaders2);
 	}
+	
+	public void drawTriangles(float[] vertices);
+	public void drawTriangles(float[] vertices, int[] indices);
+	public void drawTrianglesTextured(float[] data, int[] indices);
 }

@@ -67,6 +67,9 @@ public abstract class Game {
 		pluginPostInit();
 		Log.info("Post-Initialising Game");
 		postInitGame();
+		
+		Log.info("Initialising Render State");
+		renderInit(renderer);
 	}
 	
 	public void registerPlugin(Class<?> pluginClass) {
@@ -242,6 +245,10 @@ public abstract class Game {
 		pluginStartLoop();
 		renderFrame();
 		pluginEndLoop();
+	}
+	
+	protected void renderInit(Renderer renderer) {
+		
 	}
 	
 	private void renderFrame() {

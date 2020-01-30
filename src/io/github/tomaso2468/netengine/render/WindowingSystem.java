@@ -1,5 +1,7 @@
 package io.github.tomaso2468.netengine.render;
 
+import io.github.tomaso2468.netengine.input.Input;
+
 public interface WindowingSystem {
 	public default void preInitWindow() {
 		
@@ -32,4 +34,6 @@ public interface WindowingSystem {
 	public int getScreenHeight();
 	
 	public void setDisplay(int width, int height, boolean fullscreen);
+	
+	public Input getInput();
 }

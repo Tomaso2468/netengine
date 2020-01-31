@@ -15,7 +15,7 @@ public class IdentityCamera implements Camera {
 		return new Matrix4f();
 	}
 	@Override
-	public void update(Input input) {
+	public void update(Input input, float delta) {
 		
 	}
 }

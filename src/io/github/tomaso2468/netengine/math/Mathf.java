@@ -1,6 +1,8 @@
 package io.github.tomaso2468.netengine.math;
 
-public final class FastMath {
+public final class Mathf {
+	public static final float PI = (float) Math.PI;
+	public static final float E = (float) Math.E;
 	
 	public static float sqrt(float x) {
 		return (float) Math.sqrt(x);
@@ -27,5 +29,11 @@ public final class FastMath {
 	}
 	public static float atan(float x) {
 		return (float) Math.tan(x);
+	}
+	public static float toRadians(float a) {
+		return a / 180f * PI;
+	}
+	public static float toDegrees(float a) {
+		return a * 180f / PI;
 	}
 }

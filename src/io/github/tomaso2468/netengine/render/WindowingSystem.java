@@ -27,6 +27,10 @@ public interface WindowingSystem {
 	public int getWindowWidth();
 	public int getWindowHeight();
 	
+	public default int getSize() {
+		return Math.min(getWidth(), getHeight());
+	}
+	
 	public int getWidth();
 	public int getHeight();
 	
@@ -36,4 +40,5 @@ public interface WindowingSystem {
 	public void setDisplay(int width, int height, boolean fullscreen);
 	
 	public Input getInput();
+	public void setCaptureMouse(boolean capture);
 }

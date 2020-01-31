@@ -102,4 +102,6 @@ public interface Renderer extends WindowingSystem {
 	public void drawTrianglesTextured(float[] data, int[] indices);
 	
 	public Texture loadTexture(InputStream in, String format) throws IOException;
+	
+	public void setDepthTest(boolean enabled);
 }

@@ -265,6 +265,9 @@ public abstract class Game {
 		
 		pluginEndFrame();
 		
+		//TODO
+		renderer.getInput().clearMouseDelta();
+		
 		renderer.sync();
 		renderer.update();
 	}

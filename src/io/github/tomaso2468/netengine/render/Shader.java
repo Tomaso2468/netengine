@@ -29,6 +29,10 @@ public interface Shader {
 	public void setUniform3i(String name, int x, int y, int z);
 	public void setUniform4i(String name, int x, int y, int z, int w);
 	
+	public default void setUniformTextureUnit(String name, int unit) {
+		setUniform1i(name, unit);
+	}
+	
 	public void setUniform1ui(String name, int x);
 	public void setUniform2ui(String name, int x, int y);
 	public void setUniform3ui(String name, int x, int y, int z);

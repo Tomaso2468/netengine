@@ -22,9 +22,9 @@ public class Camera3D implements Camera {
 
 	@Override
 	public Matrix4f getView(Renderer renderer) {
-		float pitch = (float) Math.toRadians(rotation.x % 360);
-		float yaw = (float) Math.toRadians(rotation.y % 360);
-		float roll = (float) Math.toRadians(rotation.z % 360);
+		float pitch = (float) Math.toRadians(rotation.x);
+		float yaw = (float) Math.toRadians(rotation.y);
+		float roll = (float) Math.toRadians(rotation.z);
 		
 		Vector3f cameraPos = position;
 		Vector3f cameraUp = new Vector3f(0, 1, 0).rotateZ(roll);
@@ -49,8 +49,8 @@ public class Camera3D implements Camera {
 	}
 	
 	public void moveFacing(float distance) {
-		float pitch = (float) Mathf.toRadians(rotation.x % 360);
-		float yaw = (float) Mathf.toRadians(rotation.y % 360);
+		float pitch = (float) Mathf.toRadians(rotation.x);
+		float yaw = (float) Mathf.toRadians(rotation.y);
 		
 		Vector3f cameraFront = new Vector3f(
 				(float) (Mathf.cos(yaw) * Mathf.cos(pitch)),
@@ -61,8 +61,8 @@ public class Camera3D implements Camera {
 	}
 	
 	public void moveSide(float distance) {
-		float pitch = (float) Mathf.toRadians(rotation.x % 360);
-		float yaw = (float) Mathf.toRadians(rotation.y % 360);
+		float pitch = (float) Mathf.toRadians(rotation.x);
+		float yaw = (float) Mathf.toRadians(rotation.y);
 		
 		Vector3f cameraFront = new Vector3f(
 				(float) (Mathf.cos(yaw) * Mathf.cos(pitch)),
@@ -75,7 +75,7 @@ public class Camera3D implements Camera {
 	
 	public void moveSideYawOnly(float distance) {
 		float pitch = 0;
-		float yaw = (float) Mathf.toRadians(rotation.y % 360);
+		float yaw = (float) Mathf.toRadians(rotation.y);
 		
 		Vector3f cameraFront = new Vector3f(
 				(float) (Mathf.cos(yaw) * Mathf.cos(pitch)),
@@ -88,7 +88,7 @@ public class Camera3D implements Camera {
 	
 	public void moveFacingYawOnly(float distance) {
 		float pitch = 0;
-		float yaw = (float) Math.toRadians(rotation.y % 360);
+		float yaw = (float) Math.toRadians(rotation.y);
 		
 		Vector3f cameraFront = new Vector3f(
 				(float) (Mathf.cos(yaw) * Mathf.cos(pitch)),
@@ -117,14 +117,41 @@ public class Camera3D implements Camera {
 	public void setRotation(Vector3f rot) {
 		float x = rot.x;
 		if (limitPitch) {
+			// This needs -180 180 to work
 			if (x > 180) {
-				x = 180;
+				x -= 360;
 			}
-			if (x < -180) {
-				x = -180;
+			if (x > 90) {
+				x = 90;
+			}
+			if (x < -90) {
+				x = -90;
 			}
 		}
-		this.rotation = new Vector3f(x, rot.y % 360, rot.z % 360);
+		float y = rot.y;
+		float z = rot.z;
+		
+		// Lock range
+		while (x < 0) {
+			x += 360;
+		}
+		while (x > 360) {
+			x -= 360;
+		}
+		while (y < 0) {
+			y += 360;
+		}
+		while (y > 360) {
+			y -= 360;
+		}
+		while (z < 0) {
+			z += 360;
+		}
+		while (z > 360) {
+			z -= 360;
+		}
+		
+		this.rotation = new Vector3f(x, y, z);
 	}
 	
 	public void setYaw(float yaw) {

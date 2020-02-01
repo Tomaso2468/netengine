@@ -24,6 +24,8 @@ public interface Renderer extends WindowingSystem {
 	public VertexObject createStaticVO(float[] vertices);
 	public IndexedVertexObject createStaticVO(float[] vertices, int[] indices);
 	public TexturedVertexObject createStaticVOTextured(float[] data, int[] indices);
+	public MultiTextureVertexObject createStaticVOMultiTexture(float[] data, int[] indices);
+	
 	public RenderState createRenderState();
 	
 	public Shader createShader(String[] vertexShaders, String[] fragmentShaders);

@@ -180,6 +180,10 @@ public abstract class Game {
 		} catch (InstantiationException | IllegalAccessException e) {
 			throw new RendererCreateException("An error occured creating the renderer.", e);
 		}
+		
+		Log.debug("Configuring Renderer");
+		configure(renderer);
+		
 		Log.debug("Pre-Initialising Renderer");
 		renderer.preInit();
 		Log.debug("Pre-Initialising Windowing System");
@@ -273,6 +277,10 @@ public abstract class Game {
 	}
 	
 	protected void render(Renderer renderer) {
+		
+	}
+	
+	protected void configure(Renderer renderer) {
 		
 	}
 

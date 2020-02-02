@@ -30,6 +30,8 @@ public interface Renderer extends WindowingSystem {
 	
 	public RenderState createRenderState();
 	
+	public void setAntialiasing(AntialiasingType type, int samples);
+	
 	public Shader createShader(String[] vertexShaders, String[] fragmentShaders);
 	public default Shader createShader(InputStream[] vertexShaders, InputStream[] fragmentShaders) throws IOException {
 		String[] vertexShaders2 = new String[vertexShaders.length];

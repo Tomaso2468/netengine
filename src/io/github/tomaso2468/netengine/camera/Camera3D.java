@@ -121,11 +121,11 @@ public class Camera3D implements Camera {
 			if (x > 180) {
 				x -= 360;
 			}
-			if (x > 90) {
-				x = 90;
+			if (x > 89.9f) {
+				x = 89.9f;
 			}
-			if (x < -90) {
-				x = -90;
+			if (x < -89.9f) {
+				x = -89.9f;
 			}
 		}
 		float y = rot.y;

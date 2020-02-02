@@ -35,4 +35,7 @@ public interface Object3D {
 	public default void update(Game game, Input input, float delta) {
 		
 	}
+	public default void init(Game game, Renderer renderer) {
+		
+	}
 }

@@ -37,7 +37,8 @@ public class BasicObject3D implements Object3D {
 		this.model = renderer.createStaticVOMultiTexture(data, indices);
 		model.configureVO(0);
 		model.configureVOTexture(1);
-		model.configureVOSelect(2);
+		model.configureVONormal(2);
+		model.configureVOSelect(3);
 		model.unbind();
 		
 		state.leaveState();

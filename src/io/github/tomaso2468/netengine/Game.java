@@ -15,12 +15,12 @@ public abstract class Game {
 	
 	private Class<?> rendererClass;
 	private Renderer renderer;
-	private int targetWidth = 720;
-	private int targetHeight = 480;
+	private int targetWidth = 1920;
+	private int targetHeight = 1080;
 	private boolean fullscreen = false;
 	private boolean windowResizable = true;
 	private boolean vsync = true;
-	
+	// Hello
 	private Map<String, Plugin> plugins = new HashMap<String, Plugin>();
 	private Map<String, Class<?>> renderers = new HashMap<String, Class<?>>();
 	private Map<String, Class<?>> renderersBackwardsCompatible = new HashMap<String, Class<?>>();

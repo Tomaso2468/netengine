@@ -9,6 +9,8 @@ import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
+import io.github.tomaso2468.netengine.Color;
+
 public interface Shader {
 	public void setUniform1f(String name, float x);
 	public void setUniform2f(String name, float x, float y);
@@ -56,6 +58,10 @@ public interface Shader {
 	public void setUniformMatrix4(String name, Matrix4f m);
 	public void setUniformMatrix3x2(String name, Matrix3x2f m);
 	public void setUniformMatrix4x3(String name, Matrix4x3f m);
+	
+	public default void setUniformColor(String name, Color color) {
+		setUniform4f(name, color.r, color.g, color.b, color.a);
+	}
 	
 	public void startUse();
 	public void endUse();

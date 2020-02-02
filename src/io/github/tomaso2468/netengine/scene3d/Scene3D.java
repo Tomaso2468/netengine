@@ -19,6 +19,8 @@ public class Scene3D extends GroupedObject3D {
 			@Override
 			public void applySceneTransform(Material material) {
 				material.setSceneTransform(projection, view);
+				
+				configureMaterial(material);
 			}
 		};
 		
@@ -32,6 +34,10 @@ public class Scene3D extends GroupedObject3D {
 		}
 	}
 	
+	protected void configureMaterial(Material material) {
+		
+	}
+	
 	public Camera3D getCamera() {
 		return camera;
 	}
@@ -43,5 +49,10 @@ public class Scene3D extends GroupedObject3D {
 	public void update(Game game, Input input, float delta) {
 		camera.update(input, delta);
 		super.update(game, input, delta);
+	}
+	
+	@Override
+	public void init(Game game, Renderer renderer) {
+		super.init(game, renderer);
 	}
 }

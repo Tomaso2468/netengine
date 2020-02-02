@@ -1,8 +1,9 @@
 package io.github.tomaso2468.netengine;
 
 public class Color {
-	public static Color black = new Color(0, 0, 0);
-	public static Color white = new Color(1, 1, 1);
+	public static final Color red = new Color(1, 0, 0);
+	public static final Color black = new Color(0, 0, 0);
+	public static final Color white = new Color(1, 1, 1);
 	
 	public final float r;
 	public final float g;
@@ -19,6 +20,10 @@ public class Color {
 	
 	public Color(float r, float g, float b) {
 		this(r, g, b, 1);
+	}
+
+	public Color multiply(float f) {
+		return new Color(r * f, g * f, b * f, a);
 	}
 
 }

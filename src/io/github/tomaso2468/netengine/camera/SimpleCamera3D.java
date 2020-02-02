@@ -6,7 +6,7 @@ import io.github.tomaso2468.netengine.input.Input;
 import io.github.tomaso2468.netengine.input.Key;
 
 public class SimpleCamera3D extends Camera3D {
-	private float moveSpeed = 1.5f;
+	private float moveSpeed = 2.5f;
 	private float mouseSensitivity = 360f * 8;
 	
 	public SimpleCamera3D() {
@@ -36,6 +36,12 @@ public class SimpleCamera3D extends Camera3D {
 		if (input.isKeyDown(Key.R)) {
 			setRoll(0);
 			setFOV(70);
+		}
+		if (input.isKeyDown(Key.SPACE)) {
+			setPosition(getPosition().add(new Vector3f(0, moveSpeed * delta, 0)));
+		}
+		if (input.isKeyDown(Key.LSHIFT)) {
+			setPosition(getPosition().add(new Vector3f(0, -moveSpeed * delta, 0)));
 		}
 		
 		float fov = getFOV();

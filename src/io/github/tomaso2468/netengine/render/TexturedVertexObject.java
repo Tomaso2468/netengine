@@ -4,4 +4,7 @@ public interface TexturedVertexObject extends IndexedVertexObject {
 	public default void configureVOTexture(int location) {
 		
 	}
+	public default void configureVONormal(int location) {
+		
+	}
 }

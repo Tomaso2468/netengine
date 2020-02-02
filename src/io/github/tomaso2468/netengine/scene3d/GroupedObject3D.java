@@ -163,5 +163,12 @@ public class GroupedObject3D implements Object3D, List<Object3D> {
 			o.update(game, input, delta);
 		}
 	}
+	
+	@Override
+	public void init(Game game, Renderer renderer) {
+		for (Object3D o : objects) {
+			o.init(game, renderer);
+		}
+	}
 
 }

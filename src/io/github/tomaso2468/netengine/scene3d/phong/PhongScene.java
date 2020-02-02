@@ -20,6 +20,10 @@ public class PhongScene extends Scene3D {
 	private final List<PhongDirectionalLight> directionalLights = new ArrayList<>();
 	private final List<PhongSpotLight> spotLights = new ArrayList<>();
 	
+	private float gamma = 2.2f;
+	private boolean srgbTextures = true;
+	private boolean srgbOutput = true;
+	
 	@Override
 	public void draw(Game game, Renderer renderer) {
 		Collections.sort(pointLights, (o1, o2) -> {
@@ -80,6 +84,10 @@ public class PhongScene extends Scene3D {
 		material.getShader().setUniform1i("directionalLightCount", Math.min(directionalLights.size(), MAX_DIRECTIONAL_LIGHTS));
 		
 		material.getShader().setUniform3f("viewPos", getCamera().getPosition());
+		
+		material.getShader().setUniform1f("gamma", gamma);
+		material.getShader().setUniform1b("srgbTextures", srgbTextures);
+		material.getShader().setUniform1b("srgbOutput", srgbOutput);
 	}
 
 	public boolean add(PhongPointLight e) {
@@ -104,5 +112,29 @@ public class PhongScene extends Scene3D {
 	
 	public boolean remove(PhongSpotLight e) {
 		return spotLights.remove(e);
+	}
+	
+	public void setGamma(float gamma) {
+		this.gamma = gamma;
+	}
+	
+	public float getGamma() {
+		return gamma;
+	}
+	
+	public void setSRGBTextures(boolean srgbTextures) {
+		this.srgbTextures = srgbTextures;
+	}
+	
+	public boolean isSRGBTextures() {
+		return srgbTextures;
+	}
+	
+	public void setSRGBOutput(boolean srgbOutput) {
+		this.srgbOutput = srgbOutput;
+	}
+	
+	public boolean isSRGBOutput() {
+		return srgbOutput;
 	}
 }

@@ -59,6 +59,11 @@ public interface Shader {
 	public void setUniformMatrix3x2(String name, Matrix3x2f m);
 	public void setUniformMatrix4x3(String name, Matrix4x3f m);
 	
+	public void setUniform1b(String name, boolean x);
+	public void setUniform2b(String name, boolean x, boolean y);
+	public void setUniform3b(String name, boolean x, boolean y, boolean z);
+	public void setUniform4b(String name, boolean x, boolean y, boolean z, boolean w);
+	
 	public default void setUniformColor(String name, Color color) {
 		setUniform4f(name, color.r, color.g, color.b, color.a);
 	}

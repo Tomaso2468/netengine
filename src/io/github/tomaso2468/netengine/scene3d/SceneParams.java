@@ -9,6 +9,7 @@ public abstract class SceneParams {
 	public Material material;
 	public RenderState state;
 	public final List<TransparentObject> transparentObjects = new ArrayList<>(64);
+	public boolean cull;
 	
 	public abstract void applySceneTransform(Material material);
 }

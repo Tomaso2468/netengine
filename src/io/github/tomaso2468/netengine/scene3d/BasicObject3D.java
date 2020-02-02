@@ -15,6 +15,7 @@ public class BasicObject3D implements Object3D {
 	private Vector3f position;
 	private Vector3f rotation;
 	private final boolean transparent;
+	private boolean cull = true;
 	
 	public BasicObject3D(Renderer renderer, RenderState state, MultiTextureVertexObject model, Material material, Vector3f position, Vector3f rotation, boolean transparent) {
 		super();
@@ -69,6 +70,10 @@ public class BasicObject3D implements Object3D {
 	
 	@Override
 	public void draw(Game game, Renderer renderer, SceneParams params, Matrix4f transform) {
+		if (params.cull != cull) {
+			renderer.setFaceCull(cull);
+			params.cull = cull;
+		}
 		if (params.state != state) {
 			if (params.state != null) params.state.leaveState();
 		}
@@ -105,5 +110,9 @@ public class BasicObject3D implements Object3D {
 	
 	public boolean isTransparent() {
 		return transparent;
+	}
+
+	public void setCull(boolean cull) {
+		this.cull = cull;
 	}
 }

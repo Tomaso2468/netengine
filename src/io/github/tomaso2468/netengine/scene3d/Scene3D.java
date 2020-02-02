@@ -28,6 +28,11 @@ public class Scene3D extends GroupedObject3D {
 			}
 		};
 		
+		params.cull = true;
+		renderer.setDepthTest(true);
+		renderer.setBlend(BlendFactor.SRC_ALPHA, BlendFactor.ONE_MINUS_SRC_ALPHA);
+		renderer.setFaceCull(true);
+		
 		draw(game, renderer, params, new Matrix4f());
 		
 		Vector3f position = camera.getPosition();
@@ -47,6 +52,10 @@ public class Scene3D extends GroupedObject3D {
 		if (params.material != null) {
 			params.material.unbind();
 		}
+		
+		renderer.setDepthTest(false);
+		renderer.setBlend(BlendFactor.SRC_ALPHA, BlendFactor.ONE_MINUS_SRC_ALPHA);
+		renderer.setFaceCull(false);
 	}
 	
 	protected void configureMaterial(Material material) {
@@ -69,8 +78,5 @@ public class Scene3D extends GroupedObject3D {
 	@Override
 	public void init(Game game, Renderer renderer) {
 		super.init(game, renderer);
-		
-		renderer.setDepthTest(true);
-		renderer.setBlend(BlendFactor.SRC_ALPHA, BlendFactor.ONE_MINUS_SRC_ALPHA);
 	}
 }

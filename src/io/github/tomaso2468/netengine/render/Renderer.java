@@ -106,5 +106,6 @@ public interface Renderer extends WindowingSystem {
 	public Texture loadTexture(InputStream in, String format) throws IOException;
 	
 	public void setDepthTest(boolean enabled);
+	public void setFaceCull(boolean enabled);
 	public void setBlend(BlendFactor src, BlendFactor dest);
 }

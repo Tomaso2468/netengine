@@ -38,4 +38,8 @@ public interface Object3D {
 	public default void init(Game game, Renderer renderer) {
 		
 	}
+	
+	public default boolean isTransparent() {
+		return false;
+	}
 }

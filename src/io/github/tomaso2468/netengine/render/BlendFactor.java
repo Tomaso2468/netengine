@@ -1,0 +1,15 @@
+package io.github.tomaso2468.netengine.render;
+
+public enum BlendFactor {
+	DISABLE,
+	ZERO,
+	ONE,
+	SRC_COLOR,
+	DEST_COLOR,
+	ONE_MINUS_SRC_COLOR,
+	ONE_MINUS_DEST_COLOR,
+	SRC_ALPHA,
+	DEST_ALPHA,
+	ONE_MINUS_SRC_ALPHA,
+	ONE_MINUS_DEST_ALPHA,
+}

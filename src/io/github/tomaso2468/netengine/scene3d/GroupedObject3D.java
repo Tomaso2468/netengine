@@ -23,7 +23,11 @@ public class GroupedObject3D implements Object3D, List<Object3D> {
 		transform = new Matrix4f(transform).mul(new Matrix4f(getTransform()));
 		
 		for (Object3D o : objects) {
-			o.draw(game, renderer, params, transform);
+			if (o.isTransparent()) {
+				params.transparentObjects.add(new TransparentObject(o, new Matrix4f(transform)));
+			} else {
+				o.draw(game, renderer, params, transform);
+			}
 		}
 	}
 	public Vector3f getPosition() {

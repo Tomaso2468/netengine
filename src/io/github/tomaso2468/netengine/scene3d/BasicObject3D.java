@@ -14,21 +14,23 @@ public class BasicObject3D implements Object3D {
 	private final Material material;
 	private Vector3f position;
 	private Vector3f rotation;
+	private final boolean transparent;
 	
-	public BasicObject3D(Renderer renderer, RenderState state, MultiTextureVertexObject model, Material material, Vector3f position, Vector3f rotation) {
+	public BasicObject3D(Renderer renderer, RenderState state, MultiTextureVertexObject model, Material material, Vector3f position, Vector3f rotation, boolean transparent) {
 		super();
 		this.state = state;
 		this.model = model;
 		this.material = material;
 		this.position = position;
 		this.rotation = rotation;
+		this.transparent = transparent;
 	}
 	
-	public BasicObject3D(Renderer renderer, RenderState state, MultiTextureVertexObject model, Material material) {
-		this(renderer, state, model, material, new Vector3f(), new Vector3f());
+	public BasicObject3D(Renderer renderer, RenderState state, MultiTextureVertexObject model, Material material, boolean transparent) {
+		this(renderer, state, model, material, new Vector3f(), new Vector3f(), transparent);
 	}
 	
-	public BasicObject3D(Renderer renderer, float[] data, int[] indices, Material material, Vector3f position, Vector3f rotation) {
+	public BasicObject3D(Renderer renderer, float[] data, int[] indices, Material material, Vector3f position, Vector3f rotation, boolean transparent) {
 		super();
 		this.state = renderer.createRenderState();
 		
@@ -46,10 +48,11 @@ public class BasicObject3D implements Object3D {
 		this.material = material;
 		this.position = position;
 		this.rotation = rotation;
+		this.transparent = transparent;
 	}
 	
-	public BasicObject3D(Renderer renderer, float[] data, int[] indices, Material material) {
-		this(renderer, data, indices, material, new Vector3f(), new Vector3f());
+	public BasicObject3D(Renderer renderer, float[] data, int[] indices, Material material, boolean transparent) {
+		this(renderer, data, indices, material, new Vector3f(), new Vector3f(), transparent);
 	}
 	
 	public MultiTextureVertexObject getModel() {
@@ -98,5 +101,9 @@ public class BasicObject3D implements Object3D {
 
 	public void setRotation(Vector3f rotation) {
 		this.rotation = new Vector3f(rotation);
+	}
+	
+	public boolean isTransparent() {
+		return transparent;
 	}
 }

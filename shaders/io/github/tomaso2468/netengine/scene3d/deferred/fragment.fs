@@ -27,7 +27,7 @@ void main()
 	
 	if (srgbTextures) {
 		diffuse = vec4(pow(diffuse.rgb, vec3(gamma)), diffuse.a);
-		diffuse = vec4(pow(specular.rgb, vec3(gamma)), specular.a);
+		specular = vec4(pow(specular.rgb, vec3(gamma)), specular.a);
 	}
 	
 	if (diffuse.a < 0.05) {

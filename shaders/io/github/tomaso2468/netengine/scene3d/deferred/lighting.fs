@@ -56,25 +56,38 @@ uniform int spotLightCount;
 
 uniform vec3 viewPos;
 
+uniform float gamma;
+uniform bool srgbOutput;
+
+const float minLight = 0.05;
+
 float sqrDist(vec3 a, vec3 b) {
 	return (a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y) + (a.z - b.z) * (a.z - b.z);
+}
+
+bool lightInRange(vec3 pos1, vec3 pos2, float attenuation, vec3 lightColor) {
+	return length(lightColor) / (1 + attenuation * sqrDist(pos1, pos2)) < minLight;
 }
 
 vec3 calculateAmbientLight(vec3 color, vec3 position) {
 	vec3 ambient = vec3(0);
 	
 	for (int i = 0; i < spotLightCount; i++) {
-		float atten = 1 / (1 + sqrDist(spotLights[i].position, position) * spotLights[i].attenuation);
-		
-		ambient += spotLights[i].ambient.rgb;
+		if (lightInRange(spotLights[i].position, position, spotLights[i].attenuation, spotLights[i].ambient.rgb)) {
+			float atten = 1 / (1 + sqrDist(spotLights[i].position, position) * spotLights[i].attenuation);
+			
+			ambient += spotLights[i].ambient.rgb * atten;
+		}
 	}
 	for (int i = 0; i < directionalLightCount; i++) {
 		ambient += directionalLights[i].ambient.rgb;
 	}
 	for (int i = 0; i < pointLightCount; i++) {
-		float atten = 1 / (1 + sqrDist(pointLights[i].position, position) * pointLights[i].attenuation);
+		if (lightInRange(pointLights[i].position, position, pointLights[i].attenuation, pointLights[i].ambient.rgb)) {
+			float atten = 1 / (1 + sqrDist(pointLights[i].position, position) * pointLights[i].attenuation);
 		
-		ambient += pointLights[i].ambient.rgb * atten;
+			ambient += pointLights[i].ambient.rgb * atten;
+		}
 	}
 	return ambient * color;
 }
@@ -85,31 +98,35 @@ vec3 calculateDiffuseLight(vec3 color, vec3 position, vec3 normal) {
 	vec3 norm = normalize(normal);
 	
 	for (int i = 0; i < spotLightCount; i++) {
-		vec3 lightDir = normalize(spotLights[i].position - position);
-		float theta = dot(lightDir, normalize(-spotLights[i].direction));
-		
-		if (theta > spotLights[i].cutoff2) {
-			float atten = 1 / (1 + sqrDist(spotLights[i].position, position) * spotLights[i].attenuation);
+		if (lightInRange(spotLights[i].position, position, spotLights[i].attenuation, spotLights[i].diffuse.rgb)) {
+			vec3 lightDir = normalize(spotLights[i].position - position);
+			float theta = dot(lightDir, normalize(-spotLights[i].direction));
 			
-			float diff = max(dot(norm, lightDir), 0.0);
-			
-			float epsilon   = spotLights[i].cutoff - spotLights[i].cutoff2;
-			float intensity = clamp((theta - spotLights[i].cutoff2) / epsilon, 0.0, 1.0);
-			
-    		diffuse += vec3(spotLights[i].diffuse) * diff * atten * intensity;
+			if (theta > spotLights[i].cutoff2) {
+				float atten = 1 / (1 + sqrDist(spotLights[i].position, position) * spotLights[i].attenuation);
+				
+				float diff = max(dot(norm, lightDir), 0.0);
+				
+				float epsilon   = spotLights[i].cutoff - spotLights[i].cutoff2;
+				float intensity = clamp((theta - spotLights[i].cutoff2) / epsilon, 0.0, 1.0);
+				
+	    		diffuse += vec3(spotLights[i].diffuse) * diff * atten * intensity;
+			}
 		}
 	}
 	for (int i = 0; i < directionalLightCount; i++) {
 		vec3 lightDir = normalize(-directionalLights[i].direction);
 		float diff = max(dot(norm, lightDir), 0.0);
-    	diffuse += vec3(directionalLights[i].diffuse) * diff;
+	    diffuse += vec3(directionalLights[i].diffuse) * diff;
 	}
 	for (int i = 0; i < pointLightCount; i++) {
-		float atten = 1 / (1 + sqrDist(pointLights[i].position, position) * pointLights[i].attenuation);
-	
-		vec3 lightDir = normalize(pointLights[i].position - position);
-		float diff = max(dot(norm, lightDir), 0.0);
-    	diffuse += vec3(pointLights[i].diffuse) * diff * atten;
+		if (lightInRange(pointLights[i].position, position, pointLights[i].attenuation, pointLights[i].diffuse.rgb)) {
+			float atten = 1 / (1 + sqrDist(pointLights[i].position, position) * pointLights[i].attenuation);
+		
+			vec3 lightDir = normalize(pointLights[i].position - position);
+			float diff = max(dot(norm, lightDir), 0.0);
+	    	diffuse += vec3(pointLights[i].diffuse) * diff * atten;
+    	}
 	}
 	return diffuse * color.rgb;
 }
@@ -120,21 +137,23 @@ vec3 calculateSpecularLight(vec3 color, vec3 position, vec3 normal, float streng
 	vec3 norm = normalize(normal);
 	
 	for (int i = 0; i < spotLightCount; i++) {
-		vec3 lightDir = normalize(spotLights[i].position - position);
-		float theta = dot(lightDir, normalize(-spotLights[i].direction)); 
-		
-		if (theta > spotLights[i].cutoff2) {
-			float atten = 1 / (1 + sqrDist(spotLights[i].position, position) * spotLights[i].attenuation);
+		if (lightInRange(spotLights[i].position, position, spotLights[i].attenuation, spotLights[i].specular.rgb)) {
+			vec3 lightDir = normalize(spotLights[i].position - position);
+			float theta = dot(lightDir, normalize(-spotLights[i].direction)); 
 			
-			float epsilon   = spotLights[i].cutoff - spotLights[i].cutoff2;
-			float intensity = clamp((theta - spotLights[i].cutoff2) / epsilon, 0.0, 1.0);
+			if (theta > spotLights[i].cutoff2) {
+				float atten = 1 / (1 + sqrDist(spotLights[i].position, position) * spotLights[i].attenuation);
+				
+				float epsilon   = spotLights[i].cutoff - spotLights[i].cutoff2;
+				float intensity = clamp((theta - spotLights[i].cutoff2) / epsilon, 0.0, 1.0);
+				
+				vec3 lightDir   = normalize(spotLights[i].position - position);
+				vec3 viewDir    = normalize(viewPos - position);
+				vec3 halfwayDir = normalize(lightDir + viewDir);
 			
-			vec3 lightDir   = normalize(spotLights[i].position - position);
-			vec3 viewDir    = normalize(viewPos - position);
-			vec3 halfwayDir = normalize(lightDir + viewDir);
-		
-			float spec = pow(max(dot(norm, halfwayDir), 0.0), strength);
-			specular += spec * vec3(spotLights[i].specular) * intensity;
+				float spec = pow(max(dot(norm, halfwayDir), 0.0), strength);
+				specular += spec * vec3(spotLights[i].specular) * intensity;
+			}
 		}
 	}
 	for (int i = 0; i < directionalLightCount; i++) {
@@ -147,14 +166,16 @@ vec3 calculateSpecularLight(vec3 color, vec3 position, vec3 normal, float streng
 		specular += spec * vec3(directionalLights[i].specular);
 	}
 	for (int i = 0; i < pointLightCount; i++) {
-		float atten = 1 / (1 + sqrDist(pointLights[i].position, position) * pointLights[i].attenuation);
-		
-		vec3 lightDir   = normalize(pointLights[i].position - position);
-		vec3 viewDir    = normalize(viewPos - position);
-		vec3 halfwayDir = normalize(lightDir + viewDir);
-		
-		float spec = pow(max(dot(norm, halfwayDir), 0.0), strength);
-		specular += spec * vec3(pointLights[i].specular) * atten;
+		if (lightInRange(pointLights[i].position, position, pointLights[i].attenuation, pointLights[i].specular.rgb)) {
+			float atten = 1 / (1 + sqrDist(pointLights[i].position, position) * pointLights[i].attenuation);
+			
+			vec3 lightDir   = normalize(pointLights[i].position - position);
+			vec3 viewDir    = normalize(viewPos - position);
+			vec3 halfwayDir = normalize(lightDir + viewDir);
+			
+			float spec = pow(max(dot(norm, halfwayDir), 0.0), strength);
+			specular += spec * vec3(pointLights[i].specular) * atten;
+		}
 	}
 	return specular * color;
 }
@@ -169,8 +190,11 @@ void main()
 	
 	FragColor = vec4(calculateDiffuseLight(fragDiffuse.rgb, fragPosition, fragNormal)
 	+ calculateSpecularLight(fragSpecular.rgb, fragPosition, fragNormal, 256)
-	+ calculateAmbientLight(fragDiffuse.rgb, fragPosition)
-	+ fragDiffuse.rgb / 3, fragDiffuse.a);
+	+ calculateAmbientLight(fragDiffuse.rgb, fragPosition), fragDiffuse.a);
+	
+	if (srgbOutput) {
+		FragColor = vec4(pow(FragColor.rgb, vec3(1.0 / gamma)), FragColor.a);
+	}
 	
 	gl_FragDepth = fragSSP.z;
 }

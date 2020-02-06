@@ -15,8 +15,8 @@ public abstract class Game {
 	
 	private Class<?> rendererClass;
 	private Renderer renderer;
-	private int targetWidth = 1920;
-	private int targetHeight = 1080;
+	private int targetWidth = 1080;
+	private int targetHeight = 720;
 	private boolean fullscreen = false;
 	private boolean windowResizable = true;
 	private boolean vsync = true;

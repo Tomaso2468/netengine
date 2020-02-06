@@ -11,8 +11,8 @@ public class Camera3D implements Camera {
 	protected Vector3f position = new Vector3f();
 	protected Vector3f rotation = new Vector3f(20, -90, 0);
 	protected float fov = 70f;
-	protected float zfar = 1000f;
-	protected float znear = 0.01f;
+	protected float zfar = 250f;
+	protected float znear = 0.025f;
 	protected boolean limitPitch = false;
 
 	@Override

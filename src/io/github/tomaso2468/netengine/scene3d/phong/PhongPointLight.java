@@ -38,4 +38,7 @@ public class PhongPointLight implements ShaderLight {
 		shader.setUniform1f("pointLights[" + index + "].attenuation", attenuation);
 	}
 
+	public Vector3f getPosition() {
+		return new Vector3f(position);
+	}
 }

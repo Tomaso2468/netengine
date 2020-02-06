@@ -50,4 +50,9 @@ public class TextureMaterial implements Material {
 		shader.setUniformMatrix4("view", view);
 	}
 
+	@Override
+	public int getNextTextureUnit() {
+		return textures.length;
+	}
+
 }

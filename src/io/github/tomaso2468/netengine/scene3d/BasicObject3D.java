@@ -81,7 +81,7 @@ public class BasicObject3D implements Object3D {
 			if (params.material != null) params.material.unbind();
 			material.bind();
 			params.material = material;
-			params.applySceneTransform(material);
+			params.applySceneTransform(renderer, material);
 		}
 		if (params.state != state) {
 			state.enterState();

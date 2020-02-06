@@ -16,15 +16,12 @@ public class Scene3D extends GroupedObject3D {
 	private Camera3D camera = new SimpleCamera3D();
 	
 	public void draw(Game game, Renderer renderer) {
-		Matrix4f projection = camera.getProjection(renderer);
-		Matrix4f view = camera.getView(renderer);	
+		
 		
 		SceneParams params = new SceneParams() {
 			@Override
-			public void applySceneTransform(Material material) {
-				material.setSceneTransform(projection, view);
-				
-				configureMaterial(material);
+			public void applySceneTransform(Renderer renderer, Material material) {
+				configureMaterial(renderer, material);
 			}
 		};
 		
@@ -58,8 +55,11 @@ public class Scene3D extends GroupedObject3D {
 		renderer.setFaceCull(false);
 	}
 	
-	protected void configureMaterial(Material material) {
+	protected void configureMaterial(Renderer renderer, Material material) {
+		Matrix4f projection = camera.getProjection(renderer);
+		Matrix4f view = camera.getView(renderer);
 		
+		material.setSceneTransform(projection, view);
 	}
 	
 	public Camera3D getCamera() {

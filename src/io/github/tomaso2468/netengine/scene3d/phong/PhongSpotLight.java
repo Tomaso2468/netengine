@@ -60,4 +60,7 @@ public class PhongSpotLight implements ShaderLight {
 		shader.setUniform1f("spotLights[" + index + "].cutoff2", Mathf.cos(outerCutoff));
 	}
 
+	public Vector3f getPosition() {
+		return new Vector3f(position);
+	}
 }

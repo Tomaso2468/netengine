@@ -55,6 +55,9 @@ uniform int spotLightCount;
 
 uniform vec3 viewPos;
 
+uniform bool shadow;
+uniform bool depth;
+
 float sqrDist(vec3 a, vec3 b) {
 	return (a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y) + (a.z - b.z) * (a.z - b.z);
 }
@@ -162,13 +165,21 @@ void main()
 {
 	vec4 objectColor = texture(objectTexture, TexCoord);
     
-    vec3 ambient = calculateAmbientLight();
-    vec3 diffuse = calculateDiffuseLight();
-    vec3 specular = calculateSpecularLight();
-    
-    FragColor = vec4(ambient + diffuse + specular, 1) * objectColor;
+    if (!shadow) {
+    	vec3 ambient = calculateAmbientLight();
+    	vec3 diffuse = calculateDiffuseLight();
+    	vec3 specular = calculateSpecularLight();
+    	
+   	 	FragColor = vec4(ambient + diffuse + specular, 1) * objectColor;
+    } else {
+    	FragColor = objectColor;
+    }
     
     if (FragColor.a < 0.05) {
     	discard;
     }
+    
+    if (depth) {
+		FragColor = vec4(gl_FragCoord.z, gl_FragCoord.z, gl_FragCoord.z, 1);
+	}
 } 

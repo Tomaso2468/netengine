@@ -1,7 +1,11 @@
 package io.github.tomaso2468.netengine.scene3d;
 
+import org.joml.Vector3f;
+
 import io.github.tomaso2468.netengine.render.Shader;
 
 public interface ShaderLight {
-	void load(Shader shader, int index);
+	public void load(Shader shader, int index);
+	
+	public Vector3f getPosition();
 }

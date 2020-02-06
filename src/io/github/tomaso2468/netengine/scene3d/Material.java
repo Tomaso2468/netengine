@@ -13,4 +13,6 @@ public interface Material {
 	public void setSceneTransform(Matrix4f projection, Matrix4f view);
 	
 	public Shader getShader();
+	
+	public int getNextTextureUnit();
 }

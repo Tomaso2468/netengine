@@ -16,6 +16,8 @@ struct DirectionalLight {
 	vec4 ambient;
 	vec4 diffuse;
 	vec4 specular;
+	
+	mat4 lightSpaceMatrix;
 };
 
 struct SpotLight {
@@ -29,6 +31,8 @@ struct SpotLight {
 	float attenuation;
 	float cutoff;
 	float cutoff2;
+	
+	mat4 lightSpaceMatrix;
 };
 
 out vec4 FragColor;
@@ -37,6 +41,7 @@ in vec2 TexCoord;
 in vec3 Normal;
 in float textureForFragment;
 in vec3 FragPos;
+in vec4[16] FragPosLightSpace;
 
 uniform sampler2D objectTexture;
 uniform sampler2D ambientLight;
@@ -44,13 +49,13 @@ uniform sampler2D diffuseLight;
 uniform sampler2D specularLight;
 uniform sampler2D shinyLight;
 
-uniform PointLight pointLights[32];
+uniform PointLight pointLights[16];
 uniform int pointLightCount;
 
-uniform DirectionalLight directionalLights[32];
+uniform DirectionalLight directionalLights[8];
 uniform int directionalLightCount;
 
-uniform SpotLight spotLights[32];
+uniform SpotLight spotLights[8];
 uniform int spotLightCount;
 
 uniform vec3 viewPos;
@@ -58,6 +63,11 @@ uniform vec3 viewPos;
 uniform bool srgbTextures;
 uniform float gamma;
 uniform bool srgbOutput;
+
+uniform bool shadow;
+uniform bool depth;
+
+uniform int debugLightPos;
 
 float sqrDist(vec3 a, vec3 b) {
 	return (a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y) + (a.z - b.z) * (a.z - b.z);
@@ -165,24 +175,38 @@ vec3 calculateSpecularLight() {
 void main()
 {
 	vec4 textureColor = texture(objectTexture, TexCoord);
-	vec4 objectColor;
-	if (srgbTextures) {
-		objectColor = vec4(pow(textureColor.rgb, vec3(gamma)), textureColor.a);
+	
+	if (!shadow) {
+		vec4 objectColor;
+		if (srgbTextures) {
+			objectColor = vec4(pow(textureColor.rgb, vec3(gamma)), textureColor.a);
+		} else {
+			objectColor = textureColor;
+		}
+	    
+	    vec3 ambient = calculateAmbientLight();
+	    vec3 diffuse = calculateDiffuseLight();
+	    vec3 specular = calculateSpecularLight();
+	    
+	    FragColor = vec4(ambient + diffuse + specular, 1) * objectColor;
+	    
+	    if (srgbOutput) {
+	    	FragColor = vec4(pow(FragColor.rgb, vec3(1.0 / gamma)), FragColor.a);
+	    }
 	} else {
-		objectColor = textureColor;
+		FragColor = textureColor;
 	}
-    
-    vec3 ambient = calculateAmbientLight();
-    vec3 diffuse = calculateDiffuseLight();
-    vec3 specular = calculateSpecularLight();
-    
-    FragColor = vec4(ambient + diffuse + specular, 1) * objectColor;
-    
-    if (FragColor.a < 0.05) {
-    	discard;
-    }
-    
-    if (srgbOutput) {
-    	FragColor = vec4(pow(FragColor.rgb, vec3(1.0 / gamma)), FragColor.a);
-    }
+	
+	if (FragColor.a < 0.05) {
+		discard;
+	}
+	
+	if (depth) {
+		float dv = pow(gl_FragCoord.z, 50);
+		FragColor = vec4(vec3(dv), 1);
+	}
+	
+	if (debugLightPos > 0) {
+		FragColor = FragPosLightSpace[debugLightPos + 1];
+	}
 } 

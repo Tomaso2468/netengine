@@ -36,4 +36,9 @@ public class ShaderMaterial implements Material {
 		shader.setUniformMatrix4("view", view);
 	}
 
+	@Override
+	public int getNextTextureUnit() {
+		return 0;
+	}
+
 }

@@ -34,4 +34,9 @@ public class PhongDirectionalLight implements ShaderLight {
 		shader.setUniform3f("directionalLights[" + index + "].direction", direction);
 	}
 
+	@Override
+	public Vector3f getPosition() {
+		return new Vector3f(direction).negate();
+	}
+
 }

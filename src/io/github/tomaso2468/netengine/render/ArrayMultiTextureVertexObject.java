@@ -32,4 +32,10 @@ public class ArrayMultiTextureVertexObject implements MultiTextureVertexObject {
 	public void unbind() {
 		
 	}
+	
+	@Override
+	public void dispose() {
+		data = null;
+		indices = null;
+	}
 }

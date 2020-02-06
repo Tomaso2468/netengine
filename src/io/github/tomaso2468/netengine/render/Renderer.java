@@ -23,6 +23,7 @@ public interface Renderer extends WindowingSystem {
 	
 	public Framebuffer createFramebuffer(int width, int height);
 	public Framebuffer createShadowbuffer(int width, int height);
+	public GBuffer createGBuffer(int width, int height, int bufferCount);
 	
 	public VertexObject createStaticVO(float[] vertices);
 	public IndexedVertexObject createStaticVO(float[] vertices, int[] indices);
@@ -109,6 +110,15 @@ public interface Renderer extends WindowingSystem {
 	public void drawTriangles(float[] vertices);
 	public void drawTriangles(float[] vertices, int[] indices);
 	public void drawTrianglesTextured(float[] data, int[] indices);
+	public void drawQuadUV(float[] data);
+	public default void drawQuadUV(float x, float y, float w, float h) {
+		drawQuadUV(new float[] {
+				x,     y,     0, 0, 1,
+				x + w, y,     0, 1, 1,
+				x + w, y + h, 0, 1, 0,
+				x,     y + h, 0, 0, 0,
+				});
+	}
 	
 	public void setDepthTest(boolean enabled);
 	public void setFaceCull(boolean enabled);

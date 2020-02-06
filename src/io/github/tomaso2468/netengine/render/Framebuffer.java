@@ -6,4 +6,8 @@ public interface Framebuffer extends Texture {
 	
 	public void bind();
 	public void unbind();
+	
+	public default void draw(Renderer renderer) {
+		renderer.drawQuadUV(-1, -1, 2, 2);
+	}
 }

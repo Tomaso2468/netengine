@@ -1,6 +1,6 @@
 package io.github.tomaso2468.netengine.render;
 
-public interface VertexObject {
+public interface VertexObject extends RenderResource {
 	public default void configureVO(int location) {
 		
 	}

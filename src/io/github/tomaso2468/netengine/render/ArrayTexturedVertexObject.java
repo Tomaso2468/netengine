@@ -32,5 +32,11 @@ public class ArrayTexturedVertexObject implements TexturedVertexObject {
 	public void unbind() {
 		
 	}
+	
+	@Override
+	public void dispose() {
+		data = null;
+		indices = null;
+	}
 
 }

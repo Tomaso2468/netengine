@@ -31,5 +31,11 @@ public class ArrayIndexedVertexObject implements IndexedVertexObject {
 	public void unbind() {
 		
 	}
+	
+	@Override
+	public void dispose() {
+		vertices = null;
+		indices = null;
+	}
 
 }

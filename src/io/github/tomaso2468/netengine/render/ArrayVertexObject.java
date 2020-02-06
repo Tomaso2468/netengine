@@ -25,4 +25,9 @@ public class ArrayVertexObject implements VertexObject {
 	public void unbind() {
 		
 	}
+
+	@Override
+	public void dispose() {
+		vertices = null;
+	}
 }

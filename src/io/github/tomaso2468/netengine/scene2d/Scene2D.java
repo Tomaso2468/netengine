@@ -1,24 +1,21 @@
-package io.github.tomaso2468.netengine.scene3d;
+package io.github.tomaso2468.netengine.scene2d;
 
 import java.util.Collections;
 
 import org.joml.Matrix4f;
-import org.joml.Vector3f;
 
 import io.github.tomaso2468.netengine.Game;
-import io.github.tomaso2468.netengine.camera.Camera3D;
-import io.github.tomaso2468.netengine.camera.SimpleCamera3D;
+import io.github.tomaso2468.netengine.camera.Camera2D;
+import io.github.tomaso2468.netengine.camera.SimpleCamera2D;
 import io.github.tomaso2468.netengine.input.Input;
 import io.github.tomaso2468.netengine.render.BlendFactor;
 import io.github.tomaso2468.netengine.render.Renderer;
 import io.github.tomaso2468.netengine.scene3d.material.Material;
 
-public class Scene3D extends GroupedObject3D {
-	private Camera3D camera = new SimpleCamera3D();
+public class Scene2D extends GroupedObject2D {
+	private Camera2D camera = new SimpleCamera2D();
 	
 	public void draw(Game game, Renderer renderer) {
-		
-		
 		SceneParams params = new SceneParams() {
 			@Override
 			public void applySceneTransform(Renderer renderer, Material material) {
@@ -26,21 +23,17 @@ public class Scene3D extends GroupedObject3D {
 			}
 		};
 		
-		params.cull = true;
 		renderer.setDepthTest(true);
 		renderer.setBlend(BlendFactor.SRC_ALPHA, BlendFactor.ONE_MINUS_SRC_ALPHA);
-		renderer.setFaceCull(true);
+		renderer.setFaceCull(false);
 		
 		draw(game, renderer, params, new Matrix4f());
 		
-		Vector3f position = camera.getPosition();
 		Collections.sort(params.transparentObjects, (o1, o2) -> {
-			float d1 = position.distanceSquared(o1.transform.transformPosition(new Vector3f(o1.object.getPosition())));
-			float d2 = position.distanceSquared(o2.transform.transformPosition(new Vector3f(o2.object.getPosition())));
-			return Float.compare(d1, d2);
+			return Float.compare(o1.getPosition().z, o2.getPosition().z);
 		});
 		
-		for (TransparentObject3D o : params.transparentObjects) {
+		for (TransparentObject2D o : params.transparentObjects) {
 			o.object.draw(game, renderer, params, o.transform);
 		}
 		
@@ -57,17 +50,19 @@ public class Scene3D extends GroupedObject3D {
 	}
 	
 	protected void configureMaterial(Renderer renderer, Material material) {
+		camera.setSize(renderer.getWidth(), renderer.getHeight());
+		
 		Matrix4f projection = camera.getProjection(renderer);
 		Matrix4f view = camera.getView(renderer);
 		
 		material.setSceneTransform(projection, view);
 	}
 	
-	public Camera3D getCamera() {
+	public Camera2D getCamera() {
 		return camera;
 	}
 	
-	public void setCamera(Camera3D camera) {
+	public void setCamera(Camera2D camera) {
 		this.camera = camera;
 	}
 	

@@ -1,4 +1,4 @@
-package io.github.tomaso2468.netengine.scene3d;
+package io.github.tomaso2468.netengine.scene2d;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,8 +10,7 @@ import io.github.tomaso2468.netengine.scene3d.material.Material;
 public abstract class SceneParams {
 	public Material material;
 	public RenderState state;
-	public final List<TransparentObject3D> transparentObjects = new ArrayList<>(256);
-	public boolean cull;
+	public final List<TransparentObject2D> transparentObjects = new ArrayList<>(256);
 	
 	public abstract void applySceneTransform(Renderer renderer, Material material);
 }

@@ -71,15 +71,15 @@ public interface Shader extends RenderResource {
 	public void setUniform1fO(String name, float x);
 	public void setUniform2fO(String name, float x, float y);
 	public default void setUniform2fO(String name, Vector2f v) {
-		setUniform2f(name, v.get(0), v.get(1));
+		setUniform2fO(name, v.get(0), v.get(1));
 	}
 	public void setUniform3fO(String name, float x, float y, float z);
 	public default void setUniform3fO(String name, Vector3f v) {
-		setUniform3f(name, v.get(0), v.get(1), v.get(2));
+		setUniform3fO(name, v.get(0), v.get(1), v.get(2));
 	}
 	public void setUniform4fO(String name, float x, float y, float z, float w);
 	public default void setUniform4fO(String name, Vector4f v) {
-		setUniform4f(name, v.get(0), v.get(1), v.get(2), v.get(3));
+		setUniform4fO(name, v.get(0), v.get(1), v.get(2), v.get(3));
 	}
 	
 	public void setUniform1iO(String name, int x);

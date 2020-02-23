@@ -21,8 +21,8 @@ public interface Renderer extends WindowingSystem {
 	public void startFrame();
 	public void clearScreen(Color color);
 	
-	public Framebuffer createFramebuffer(int width, int height);
-	public Framebuffer createShadowbuffer(int width, int height);
+	public FrameBuffer createFrameBuffer(int width, int height);
+	public ShadowBuffer createShadowBuffer(int width, int height);
 	public GBuffer createGBuffer(int width, int height, int bufferCount);
 	
 	public VertexObject createStaticVO(float[] vertices);

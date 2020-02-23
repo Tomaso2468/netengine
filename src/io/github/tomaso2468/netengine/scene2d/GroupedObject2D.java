@@ -1,4 +1,4 @@
-package io.github.tomaso2468.netengine.scene3d;
+package io.github.tomaso2468.netengine.scene2d;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -13,18 +13,18 @@ import io.github.tomaso2468.netengine.Game;
 import io.github.tomaso2468.netengine.input.Input;
 import io.github.tomaso2468.netengine.render.Renderer;
 
-public class GroupedObject3D implements Object3D, List<Object3D> {
-	private final List<Object3D> objects = new ArrayList<>();
+public class GroupedObject2D implements Object2D, List<Object2D> {
+	private final List<Object2D> objects = new ArrayList<>();
 	private Vector3f position = new Vector3f();
-	private Vector3f rotation = new Vector3f();
+	private float rotation = 0;
 
 	@Override
 	public void draw(Game game, Renderer renderer, SceneParams params, Matrix4f transform) {
 		transform = new Matrix4f(transform).mul(new Matrix4f(getTransform()));
 		
-		for (Object3D o : objects) {
+		for (Object2D o : objects) {
 			if (o.isTransparent()) {
-				params.transparentObjects.add(new TransparentObject3D(o, new Matrix4f(transform)));
+				params.transparentObjects.add(new TransparentObject2D(o, new Matrix4f(transform)));
 			} else {
 				o.draw(game, renderer, params, transform);
 			}
@@ -38,22 +38,22 @@ public class GroupedObject3D implements Object3D, List<Object3D> {
 		this.position = new Vector3f(position);
 	}
 
-	public Vector3f getRotation() {
-		return new Vector3f(rotation);
+	public float getRotation() {
+		return rotation;
 	}
 
-	public void setRotation(Vector3f rotation) {
-		this.rotation = new Vector3f(rotation);
+	public void setRotation(float rotation) {
+		this.rotation = rotation;
 	}
 	
 	@Override
-	public Iterator<Object3D> iterator() {
+	public Iterator<Object2D> iterator() {
 		return objects.iterator();
 	}
 
 	@Override
-	public Object3D[] toArray() {
-		return objects.toArray(new Object3D[size()]);
+	public Object2D[] toArray() {
+		return objects.toArray(new Object2D[size()]);
 	}
 
 	@Override
@@ -67,17 +67,17 @@ public class GroupedObject3D implements Object3D, List<Object3D> {
 	}
 
 	@Override
-	public ListIterator<Object3D> listIterator() {
+	public ListIterator<Object2D> listIterator() {
 		return objects.listIterator();
 	}
 
 	@Override
-	public ListIterator<Object3D> listIterator(int index) {
+	public ListIterator<Object2D> listIterator(int index) {
 		return objects.listIterator(index);
 	}
 
 	@Override
-	public List<Object3D> subList(int fromIndex, int toIndex) {
+	public List<Object2D> subList(int fromIndex, int toIndex) {
 		return objects.subList(fromIndex, toIndex);
 	}
 
@@ -97,7 +97,7 @@ public class GroupedObject3D implements Object3D, List<Object3D> {
 	}
 
 	@Override
-	public boolean add(Object3D e) {
+	public boolean add(Object2D e) {
 		return objects.add(e);
 	}
 
@@ -112,12 +112,12 @@ public class GroupedObject3D implements Object3D, List<Object3D> {
 	}
 
 	@Override
-	public boolean addAll(Collection<? extends Object3D> c) {
+	public boolean addAll(Collection<? extends Object2D> c) {
 		return objects.addAll(c);
 	}
 
 	@Override
-	public boolean addAll(int index, Collection<? extends Object3D> c) {
+	public boolean addAll(int index, Collection<? extends Object2D> c) {
 		return objects.addAll(index, c);
 	}
 
@@ -137,22 +137,22 @@ public class GroupedObject3D implements Object3D, List<Object3D> {
 	}
 
 	@Override
-	public Object3D get(int index) {
+	public Object2D get(int index) {
 		return objects.get(index);
 	}
 
 	@Override
-	public Object3D set(int index, Object3D element) {
+	public Object2D set(int index, Object2D element) {
 		return objects.set(index, element);
 	}
 
 	@Override
-	public void add(int index, Object3D element) {
+	public void add(int index, Object2D element) {
 		objects.add(index, element);
 	}
 
 	@Override
-	public Object3D remove(int index) {
+	public Object2D remove(int index) {
 		return objects.remove(index);
 	}
 
@@ -163,14 +163,14 @@ public class GroupedObject3D implements Object3D, List<Object3D> {
 	
 	@Override
 	public void update(Game game, Input input, float delta) {
-		for (Object3D o : objects) {
+		for (Object2D o : objects) {
 			o.update(game, input, delta);
 		}
 	}
 	
 	@Override
 	public void init(Game game, Renderer renderer) {
-		for (Object3D o : objects) {
+		for (Object2D o : objects) {
 			o.init(game, renderer);
 		}
 	}
@@ -178,9 +178,9 @@ public class GroupedObject3D implements Object3D, List<Object3D> {
 	public void drawDepth(Game game, Renderer renderer, SceneParams params, Matrix4f transform) {
 		transform = new Matrix4f(transform).mul(new Matrix4f(getTransform()));
 		
-		for (Object3D o : objects) {
+		for (Object2D o : objects) {
 			if (o.isTransparent()) {
-				params.transparentObjects.add(new TransparentObject3D(o, new Matrix4f(transform)));
+				params.transparentObjects.add(new TransparentObject2D(o, new Matrix4f(transform)));
 			} else {
 				o.drawDepth(game, renderer, params, transform);
 			}

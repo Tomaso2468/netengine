@@ -1,4 +1,4 @@
-package io.github.tomaso2468.netengine.scene3d;
+package io.github.tomaso2468.netengine.scene2d;
 
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -9,16 +9,15 @@ import io.github.tomaso2468.netengine.render.RenderState;
 import io.github.tomaso2468.netengine.render.Renderer;
 import io.github.tomaso2468.netengine.scene3d.material.Material;
 
-public class BasicObject3D implements Object3D {
+public class BasicObject2D implements Object2D {
 	private final RenderState state;
-	private final MultiTextureVertexObject model;
-	private final Material material;
+	private MultiTextureVertexObject model;
+	private Material material;
 	private Vector3f position;
-	private Vector3f rotation;
+	private float rotation;
 	private final boolean transparent;
-	private boolean cull = true;
 	
-	public BasicObject3D(Renderer renderer, RenderState state, MultiTextureVertexObject model, Material material, Vector3f position, Vector3f rotation, boolean transparent) {
+	public BasicObject2D(Renderer renderer, RenderState state, MultiTextureVertexObject model, Material material, Vector3f position, float rotation, boolean transparent) {
 		super();
 		this.state = state;
 		this.model = model;
@@ -28,11 +27,11 @@ public class BasicObject3D implements Object3D {
 		this.transparent = transparent;
 	}
 	
-	public BasicObject3D(Renderer renderer, RenderState state, MultiTextureVertexObject model, Material material, boolean transparent) {
-		this(renderer, state, model, material, new Vector3f(), new Vector3f(), transparent);
+	public BasicObject2D(Renderer renderer, RenderState state, MultiTextureVertexObject model, Material material, boolean transparent) {
+		this(renderer, state, model, material, new Vector3f(), 0, transparent);
 	}
 	
-	public BasicObject3D(Renderer renderer, float[] data, int[] indices, Material material, Vector3f position, Vector3f rotation, boolean transparent) {
+	public BasicObject2D(Renderer renderer, float[] data, int[] indices, Material material, Vector3f position, float rotation, boolean transparent) {
 		super();
 		this.state = renderer.createRenderState();
 		
@@ -53,8 +52,8 @@ public class BasicObject3D implements Object3D {
 		this.transparent = transparent;
 	}
 	
-	public BasicObject3D(Renderer renderer, float[] data, int[] indices, Material material, boolean transparent) {
-		this(renderer, data, indices, material, new Vector3f(), new Vector3f(), transparent);
+	public BasicObject2D(Renderer renderer, float[] data, int[] indices, Material material, boolean transparent) {
+		this(renderer, data, indices, material, new Vector3f(), 0, transparent);
 	}
 	
 	public MultiTextureVertexObject getModel() {
@@ -71,10 +70,6 @@ public class BasicObject3D implements Object3D {
 	
 	@Override
 	public void draw(Game game, Renderer renderer, SceneParams params, Matrix4f transform) {
-		if (params.cull != cull) {
-			renderer.setFaceCull(cull);
-			params.cull = cull;
-		}
 		if (params.state != state) {
 			if (params.state != null) params.state.leaveState();
 		}
@@ -101,28 +96,20 @@ public class BasicObject3D implements Object3D {
 		this.position = new Vector3f(position);
 	}
 
-	public Vector3f getRotation() {
-		return new Vector3f(rotation);
+	public float getRotation() {
+		return rotation;
 	}
 
-	public void setRotation(Vector3f rotation) {
-		this.rotation = new Vector3f(rotation);
+	public void setRotation(float rotation) {
+		this.rotation = rotation;
 	}
 	
 	public boolean isTransparent() {
 		return transparent;
 	}
 
-	public void setCull(boolean cull) {
-		this.cull = cull;
-	}
-
 	@Override
 	public void drawDepth(Game game, Renderer renderer, SceneParams params, Matrix4f transform) {
-		if (params.cull != cull) {
-			renderer.setFaceCull(cull);
-			params.cull = cull;
-		}
 		if (params.state != state) {
 			if (params.state != null) params.state.leaveState();
 		}

@@ -8,6 +8,10 @@ struct PointLight {
 	vec4 specular;
 	
 	float attenuation;
+	
+	int bufferIndex;
+	
+	mat4 matrix;
 };
 
 struct DirectionalLight {
@@ -18,6 +22,10 @@ struct DirectionalLight {
 	vec4 specular;
 	
 	mat4 lightSpaceMatrix;
+	
+	int bufferIndex;
+	
+	mat4 matrix;
 };
 
 struct SpotLight {
@@ -33,6 +41,10 @@ struct SpotLight {
 	float cutoff2;
 	
 	mat4 lightSpaceMatrix;
+	
+	int bufferIndex;
+	
+	mat4 matrix;
 };
 
 uniform sampler2D position;
@@ -40,6 +52,8 @@ uniform sampler2D normal;
 uniform sampler2D diffuse;
 uniform sampler2D specular;
 uniform sampler2D screenSpacePosition;
+
+uniform sampler2D[16] shadowBuffers;
 
 in vec2 texCoord;
 
@@ -67,6 +81,42 @@ float sqrDist(vec3 a, vec3 b) {
 
 bool lightInRange(vec3 pos1, vec3 pos2, float attenuation, vec3 lightColor) {
 	return length(lightColor) / (1 + attenuation * sqrDist(pos1, pos2)) < minLight;
+}
+
+vec2 shadowCoord(vec3 pos, int bufferIndex, mat4 matrix) {
+	vec4 lightSpace = (matrix * vec4(pos, 1));
+	vec3 lightSpacePos = (lightSpace.xyz / lightSpace.w) * 0.5 + vec3(0.5);
+	vec2 coords = lightSpacePos.xy;
+	
+	return coords;
+}
+
+float shadowFactor(vec3 pos, int bufferIndex, mat4 matrix) {
+	vec4 lightSpace = (matrix * vec4(pos, 1));
+	vec3 lightSpacePos = (lightSpace.xyz / lightSpace.w) * 0.5 + vec3(0.5);
+	vec2 coords = lightSpacePos.xy;
+	
+	if (coords.x < 0) {
+		return 1;
+	}
+	if (coords.y < 0) {
+		return 1;
+	}
+	if (coords.x > 1) {
+		return 1;
+	}
+	if (coords.y > 1) {
+		return 1;
+	}
+	
+	float closestDepth = texture(shadowBuffers[bufferIndex], coords).g;
+	float depth = lightSpacePos.z;
+	
+	if (depth > closestDepth) {
+		return 1;
+	} else {
+		return 0;
+	}
 }
 
 vec3 calculateAmbientLight(vec3 color, vec3 position) {
@@ -110,7 +160,8 @@ vec3 calculateDiffuseLight(vec3 color, vec3 position, vec3 normal) {
 				float epsilon   = spotLights[i].cutoff - spotLights[i].cutoff2;
 				float intensity = clamp((theta - spotLights[i].cutoff2) / epsilon, 0.0, 1.0);
 				
-	    		diffuse += vec3(spotLights[i].diffuse) * diff * atten * intensity;
+	    		//diffuse += vec3(spotLights[i].diffuse) * diff * atten * intensity * shadowFactor(position, spotLights[i].bufferIndex, spotLights[i].matrix);
+	    		diffuse += vec3(shadowFactor(position, spotLights[i].bufferIndex, spotLights[i].matrix));
 			}
 		}
 	}
@@ -152,7 +203,7 @@ vec3 calculateSpecularLight(vec3 color, vec3 position, vec3 normal, float streng
 				vec3 halfwayDir = normalize(lightDir + viewDir);
 			
 				float spec = pow(max(dot(norm, halfwayDir), 0.0), strength);
-				specular += spec * vec3(spotLights[i].specular) * intensity;
+				specular += spec * vec3(spotLights[i].specular) * intensity * shadowFactor(position, spotLights[i].bufferIndex, spotLights[i].matrix);
 			}
 		}
 	}
@@ -197,4 +248,9 @@ void main()
 	}
 	
 	gl_FragDepth = fragSSP.z;
+	
+	FragColor.r = shadowFactor(fragPosition, 0, spotLights[0].matrix);
+	
+	FragColor.xy = shadowCoord(fragPosition, 0, spotLights[0].matrix);
+	FragColor.z = 0;
 }

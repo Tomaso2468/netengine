@@ -10,58 +10,120 @@ import org.joml.Vector3f;
 
 import io.github.tomaso2468.netengine.Color;
 import io.github.tomaso2468.netengine.Game;
+import io.github.tomaso2468.netengine.input.Key;
+import io.github.tomaso2468.netengine.log.Log;
 import io.github.tomaso2468.netengine.render.BlendFactor;
 import io.github.tomaso2468.netengine.render.GBuffer;
 import io.github.tomaso2468.netengine.render.RenderException;
 import io.github.tomaso2468.netengine.render.Renderer;
 import io.github.tomaso2468.netengine.render.Shader;
-import io.github.tomaso2468.netengine.scene3d.Material;
+import io.github.tomaso2468.netengine.render.ShaderLoader;
+import io.github.tomaso2468.netengine.render.ShadowBuffer;
 import io.github.tomaso2468.netengine.scene3d.Scene3D;
 import io.github.tomaso2468.netengine.scene3d.SceneParams;
 import io.github.tomaso2468.netengine.scene3d.ShaderLight;
-import io.github.tomaso2468.netengine.scene3d.ShaderLoader;
-import io.github.tomaso2468.netengine.scene3d.TransparentObject;
+import io.github.tomaso2468.netengine.scene3d.TransparentObject3D;
+import io.github.tomaso2468.netengine.scene3d.material.Material;
 
 public class PhongScene extends Scene3D {
 	public static final int MAX_POINT_LIGHTS = 16;
 	public static final int MAX_DIRECTIONAL_LIGHTS = 8;
 	public static final int MAX_SPOT_LIGHTS = 8;
+	public static final int GBUFFER_SIZE = 5;
 	
 	private final List<PhongPointLight> pointLights = new ArrayList<>();
-	private final List<PhongDirectionalLight> directionalLights = new ArrayList<>();
-	private final List<PhongSpotLight> spotLights = new ArrayList<>();
+	private final List<PhongDirectionalLight> directionalLights = new ArrayList<>(MAX_DIRECTIONAL_LIGHTS);
+	private final List<PhongSpotLight> spotLights = new ArrayList<>(MAX_SPOT_LIGHTS);
+	private final List<ShadowBuffer> shadowBuffers = new ArrayList<>(MAX_SPOT_LIGHTS + MAX_DIRECTIONAL_LIGHTS);
 	
 	private float gamma = 2.2f;
 	private boolean srgbTextures = true;
 	private boolean srgbOutput = true;
 	private boolean shadow = false;
 	private int shadowResolution = 1024;
-	private float shadowDistance = 10f;
+	private float shadowDistance = 5f;
 	private ShaderLight currentLight;
 	
 	protected GBuffer gbuffer;
 	protected Shader shader;
+	protected Shader debugShader;
+	
+	public void renderShadow(Game game, Renderer renderer) {
+		renderer.clearScreen(Color.black);
+		
+		SceneParams params = new SceneParams() {
+			@Override
+			public void applySceneTransform(Renderer renderer, Material material) {
+				configureMaterial(renderer, material);
+			}
+		};
+		
+		params.cull = true;
+		renderer.setDepthTest(true);
+		renderer.setBlend(BlendFactor.DISABLE, BlendFactor.DISABLE);
+		renderer.setFaceCull(true);
+		
+		drawDepth(game, renderer, params, new Matrix4f());
+		
+		if (params.state != null) {
+			params.state.leaveState();
+			params.state = null;
+		}
+		if (params.material != null) {
+			params.material.unbind();
+			params.material = null;
+		}
+	}
 	
 	public void draw(Game game, Renderer renderer) {
+		while (shadowBuffers.size() < spotLights.size() + directionalLights.size()) {
+			Log.debug("Generating shadow buffer");
+			ShadowBuffer buffer = renderer.createShadowBuffer(shadowResolution, shadowResolution);
+			buffer.unbind();
+			
+			shadowBuffers.add(buffer);
+		}
 		if (gbuffer != null && (gbuffer.getWidth() != renderer.getWidth() || gbuffer.getHeight() != renderer.getHeight())) {
 			gbuffer.dispose();
 			
 			gbuffer = null;
 		}
 		if (gbuffer == null) {
-			int count = 0;
-			count += 1; // position
-			count += 1; // normal
-			count += 1; // albedo
-			count += 1; // specular
-			count += 1; // screen space
-			
-			gbuffer = renderer.createGBuffer(renderer.getWidth(), renderer.getHeight(), count);
+			gbuffer = renderer.createGBuffer(renderer.getWidth(), renderer.getHeight(), GBUFFER_SIZE);
 			gbuffer.unbind();
 		}
+		for (int i = 0; i < spotLights.size(); i++) {
+			ShadowBuffer sb = shadowBuffers.get(i);
+			ShaderLight light = spotLights.get(i);
+			
+			light.setLightIndex(i);
+			
+			currentLight = light;
+			shadow = true;
+			
+			sb.bind();
+			renderShadow(game, renderer);
+			sb.unbind();
+		}
+		for (int i = 0; i < directionalLights.size(); i++) {
+			ShadowBuffer sb = shadowBuffers.get(spotLights.size() + i);
+			ShaderLight light = directionalLights.get(i);
+			
+			light.setLightIndex(spotLights.size() + i);
+			
+			currentLight = light;
+			shadow = true;
+			
+			sb.bind();
+			renderShadow(game, renderer);
+			sb.unbind();
+		}
+		shadow = false;
+		currentLight = null;
+		
 		if (shader == null) {
 			try {
-				shader = ShaderLoader.createDefaultSimpleShader(renderer);
+				shader = ShaderLoader.createDefaultLightingShader(renderer);
 			} catch (IOException e) {
 				throw new RenderException(e);
 			}
@@ -72,6 +134,16 @@ public class PhongScene extends Scene3D {
 			shader.setUniformTextureUnitO("specular", 3);
 			shader.setUniformTextureUnitO("screenSpacePosition", 4);
 			shader.endUse();
+		}
+		if (debugShader == null) {
+			try {
+				debugShader = ShaderLoader.createDefaultSimpleShader(renderer);
+			} catch (IOException e) {
+				throw new RenderException(e);
+			}
+			debugShader.startUse();
+			debugShader.setUniformTextureUnit("aTexture", 0);
+			debugShader.endUse();
 		}
 		
 		gbuffer.bind();
@@ -109,6 +181,9 @@ public class PhongScene extends Scene3D {
 		shader.startUse();
 		configureShader(renderer, shader);
 		gbuffer.bind(0);
+		for (int i = 0; i < shadowBuffers.size(); i++) {
+			shadowBuffers.get(i).bind(GBUFFER_SIZE + i);
+		}
 		gbuffer.draw(renderer);
 		gbuffer.unbind(0);
 		shader.endUse();
@@ -122,7 +197,7 @@ public class PhongScene extends Scene3D {
 			return Float.compare(d1, d2);
 		});
 		
-		for (TransparentObject o : params.transparentObjects) {
+		for (TransparentObject3D o : params.transparentObjects) {
 			gbuffer.bind();
 			renderer.clearScreen(new Color(0, 0, 0, 0));
 			
@@ -159,6 +234,14 @@ public class PhongScene extends Scene3D {
 		renderer.setDepthTest(false);
 		renderer.setBlend(BlendFactor.SRC_ALPHA, BlendFactor.ONE_MINUS_SRC_ALPHA);
 		renderer.setFaceCull(false);
+		
+		if (renderer.getInput().isKeyDown(Key.F1)) {
+			debugShader.startUse();
+			shadowBuffers.get(0).bind(0);
+			shadowBuffers.get(0).draw(renderer);
+			shadowBuffers.get(0).unbind(0);
+			debugShader.endUse();
+		}
 	}
 	
 	protected void configureShader(Renderer renderer, Shader shader) {
@@ -167,7 +250,7 @@ public class PhongScene extends Scene3D {
 				break;
 			}
 			
-			pointLights.get(i).load(shader, i);
+			pointLights.get(i).load(shader, i, shadowDistance);
 		}
 		shader.setUniform1i("pointLightCount", Math.min(pointLights.size(), MAX_POINT_LIGHTS));
 		
@@ -176,32 +259,34 @@ public class PhongScene extends Scene3D {
 				break;
 			}
 			
-			spotLights.get(i).load(shader, i);
+			spotLights.get(i).load(shader, i, shadowDistance);
 		}
 		shader.setUniform1i("spotLightCount", Math.min(spotLights.size(), MAX_SPOT_LIGHTS));
+		//shader.setUniformMatrix4O("spotLights[0].matrix", new Matrix4f());
 		
 		for (int i = 0; i < directionalLights.size(); i++) {
 			if (i >= MAX_DIRECTIONAL_LIGHTS - 1) {
 				break;
 			}
 			
-			directionalLights.get(i).load(shader, i);
+			directionalLights.get(i).load(shader, i, shadowDistance);
 		}
 		shader.setUniform1i("directionalLightCount", Math.min(directionalLights.size(), MAX_DIRECTIONAL_LIGHTS));
 		
-		shader.setUniform3f("viewPos", getCamera().getPosition());
+		shader.setUniform3fO("viewPos", getCamera().getPosition());
 		
-		shader.setUniform1f("gamma", gamma);
-		shader.setUniform1b("srgbOutput", srgbOutput);
+		shader.setUniform1fO("gamma", gamma);
+		shader.setUniform1bO("srgbOutput", srgbOutput);
+		
+		for (int i = 0; i < shadowBuffers.size(); i++) {
+			shader.setUniformTextureUnitO("shadowBuffers[" + i + "]", GBUFFER_SIZE + i);
+		}
 	}
 
 	@Override
 	protected void configureMaterial(Renderer renderer, Material material) {
 		if (shadow) {
-			Matrix4f projection = new Matrix4f().setOrtho(-shadowDistance, shadowDistance, -shadowDistance, shadowDistance, 0.1f, 7.5f);
-			Matrix4f view = new Matrix4f().lookAt(currentLight.getPosition(), new Vector3f(0.1f, 0, 0), new Vector3f(0.0f, 1.0f, 0.0f));
-			
-			material.setSceneTransform(projection, view);
+			material.setSceneTransform(currentLight.getProjection(shadowDistance), currentLight.getView());
 		} else {
 			Matrix4f projection = getCamera().getProjection(renderer);
 			Matrix4f view = getCamera().getView(renderer);
@@ -209,8 +294,8 @@ public class PhongScene extends Scene3D {
 			material.setSceneTransform(projection, view);
 		}
 		
-		material.getShader().setUniform1f("gamma", gamma);
-		material.getShader().setUniform1b("srgbTextures", srgbTextures);
+		material.getShader().setUniform1fO("gamma", gamma);
+		material.getShader().setUniform1bO("srgbTextures", false);
 	}
 	
 	public boolean add(PhongPointLight e) {
